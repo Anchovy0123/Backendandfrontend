@@ -1,9 +1,14 @@
 import { API_BASE_URL } from './api';
 
 const buildUrl = (path) => {
-  if (!path) return API_BASE_URL;
+  const base = API_BASE_URL.replace(/\/+$/, '');
+  if (!path) return base;
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (base.endsWith('/api') && normalizedPath.startsWith('/api/')) {
+    return `${base}${normalizedPath.slice(4)}`;
+  }
+  return `${base}${normalizedPath}`;
 };
 
 const readJson = async (response) => {

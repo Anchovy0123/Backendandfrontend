@@ -142,7 +142,13 @@ router.post("/", async (req, res) => {
     });
   } catch (err) {
     console.error("POST /api/users error:", err);
-    return sendError(res, 500, "Insert failed");
+    const baseMessage = "Insert failed";
+    if (process.env.NODE_ENV === "production") {
+      return sendError(res, 500, baseMessage);
+    }
+    const detail = err?.sqlMessage || err?.message || "";
+    const code = err?.code ? ` (${err.code})` : "";
+    return sendError(res, 500, detail ? `${baseMessage}${code}: ${detail}` : `${baseMessage}${code}`);
   }
 });
 

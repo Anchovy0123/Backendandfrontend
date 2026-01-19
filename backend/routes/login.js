@@ -10,6 +10,93 @@ const sendError = (res, status, message) =>
 
 /**
  * @openapi
+ * /api/auth/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user (tbl_users)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUserRequest'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: Duplicate username
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+async function handleRegister(req, res) {
+  const firstname = String(req.body?.firstname ?? "").trim();
+  const fullname = String(req.body?.fullname ?? "").trim();
+  const lastname = String(req.body?.lastname ?? "").trim();
+  const username = String(req.body?.username ?? "").trim();
+  const password = String(req.body?.password ?? "");
+  const address = String(req.body?.address ?? "").trim();
+  const sex = String(req.body?.sex ?? "").trim();
+  const birthday = String(req.body?.birthday ?? "").trim();
+
+  try {
+    if (!username) return sendError(res, 400, "Username is required");
+    if (!password) return sendError(res, 400, "Password is required");
+
+    const [dupes] = await db.query(
+      "SELECT id FROM tbl_users WHERE username = ? LIMIT 1",
+      [username]
+    );
+    if (dupes.length > 0) return sendError(res, 409, "Username already exists");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const [result] = await db.query(
+      `INSERT INTO tbl_users (firstname, fullname, lastname, username, password, address, sex, birthday)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        firstname || null,
+        fullname || null,
+        lastname || null,
+        username,
+        hashedPassword,
+        address || null,
+        sex || null,
+        birthday || null,
+      ]
+    );
+
+    return res.status(201).json({
+      id: result.insertId,
+      firstname: firstname || "",
+      fullname: fullname || "",
+      lastname: lastname || "",
+      username,
+      address: address || "",
+      sex: sex || "",
+      birthday: birthday || "",
+    });
+  } catch (err) {
+    console.error("POST /api/auth/register error:", err);
+    return sendError(res, 500, "Insert failed");
+  }
+}
+
+/**
+ * @openapi
  * tags:
  *   - name: Auth
  *     description: Login/Logout
@@ -134,6 +221,7 @@ async function handleLogin(req, res) {
   }
 }
 
+router.post("/register", handleRegister);
 router.post("/", handleLogin);
 router.post("/login", handleLogin);
 
