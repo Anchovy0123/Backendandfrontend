@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { API_BASE_URL } from '@/lib/api';
+import { apiRequest, getAuthToken } from '@/lib/apiClient';
 
 export default function User() {
   const [items, setItems] = useState([]);
@@ -11,7 +11,7 @@ export default function User() {
 
   useEffect(() => {
 
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
      if (!token) {
        router.push('/signin');
        return;
@@ -19,12 +19,7 @@ export default function User() {
 
     async function getUsers() {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/users`);
-        if (!res.ok) {
-          console.error('Failed to fetch data');
-          return;
-        }
-        const data = await res.json();
+        const data = await apiRequest('/api/users');
         setItems(data);
         setLoading(false); // <-- โหลดเสร็จแล้ว
       } catch (error) {
@@ -41,13 +36,9 @@ export default function User() {
 const handleDelete = async (id) => {
   //console.log('user id :', id);
   try {
-    const res = await fetch(`${API_BASE_URL}/api/users/${id}`, {
+    const result = await apiRequest(`/api/users/${id}`, {
       method: 'DELETE',
-      headers: {
-        Accept : 'application/json',
-      },
     });
-    const result = await res.json();
     console.log(result);
 
   } catch (error) {

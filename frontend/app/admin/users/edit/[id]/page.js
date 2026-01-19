@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { useParams, useRouter } from 'next/navigation'
-import { API_BASE_URL } from '@/lib/api'
+import { apiRequest } from '@/lib/apiClient'
 
 // ✅ ใช้ endpoint ตามที่ขอแบบชัดเจน
-const USERS_API = `${API_BASE_URL}/api/users`
+const USERS_API = '/api/users'
 
 // แปลง "14/02/2545" -> "2002-02-14"
 function toInputDate(v) {
@@ -73,13 +73,7 @@ export default function Page() {
     async function getUser() {
       try {
         // ✅ GET โดยใช้ /api/users/:id
-        const res = await fetch(`${USERS_API}/${id}`)
-        if (!res.ok) {
-          console.error('Failed to fetch data', res.status, res.statusText)
-          Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลผู้ใช้', text: `ID: ${id}` })
-          return
-        }
-        const data = await res.json()
+        const data = await apiRequest(`${USERS_API}/${id}`)
         const user = Array.isArray(data) ? (data[0] || {}) : data
         setInitialUser(user)
 
@@ -93,7 +87,7 @@ export default function Page() {
         setPassword(user.password || '')
       } catch (err) {
         console.error('Error fetching data:', err)
-        Swal.fire({ icon: 'error', title: 'ข้อผิดพลาดเครือข่าย', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' })
+        Swal.fire({ icon: 'error', title: 'ข้อผิดพลาดเครือข่าย', text: err?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' })
       } finally {
         setLoading(false)
       }
@@ -118,42 +112,27 @@ export default function Page() {
     setSubmitting(true)
     try {
       // ✅ PUT ไปที่ /api/users (ตามที่ให้มา) โดยส่ง id ใน body
-      const res = await fetch(USERS_API, {
+      await apiRequest(USERS_API, {
         method: 'PUT',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+        body: {
           id, firstname, fullname, lastname, username,
           address, sex, birthday, password
-        })
+        }
       })
 
-      const result = await res.json().catch(() => ({}))
-      if (res.ok) {
-        await Swal.fire({
-          icon: 'success',
-          title: '<h3>ปรับปรุงข้อมูลเรียบร้อยแล้ว</h3>',
-          showConfirmButton: false,
-          timer: 1600
-        })
-        router.push('/register')
-      } else {
-        console.error('Update failed:', result)
-        Swal.fire({
-          title: 'Error!',
-          text: result?.message || 'เกิดข้อผิดพลาด!',
-          icon: 'error',
-          confirmButtonText: 'ตกลง'
-        })
-      }
+      await Swal.fire({
+        icon: 'success',
+        title: '<h3>ปรับปรุงข้อมูลเรียบร้อยแล้ว</h3>',
+        showConfirmButton: false,
+        timer: 1600
+      })
+      router.push('/register')
     } catch (error) {
       console.error(error)
       Swal.fire({
         icon: 'error',
         title: 'ข้อผิดพลาดเครือข่าย',
-        text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+        text: error?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
       })
     } finally {
       setSubmitting(false)

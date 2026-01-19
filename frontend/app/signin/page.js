@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
 import { Kanit } from 'next/font/google';
-import { API_BASE_URL } from '@/lib/api';
+import { apiRequest, setAuthToken } from '@/lib/apiClient';
 
 const kanit = Kanit({
   subsets: ['thai','latin'],
@@ -23,20 +23,22 @@ export default function SignInPage(){
     e.preventDefault();
     try{
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`,{
+      const data = await apiRequest('/api/auth/login', {
         method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: { username, password },
+        auth: false,
       });
-      const data = await res.json().catch(()=> ({}));
-      if(res.ok && data?.token){
-        localStorage.setItem('token', data.token);
+      if(data?.token){
+        setAuthToken(data.token);
         await Swal.fire({ icon:'success', title:'<h3>Login Successfully!</h3>', timer:1200, showConfirmButton:false });
         window.location.href = '/admin/users';
       }else{
         await Swal.fire({ icon:'warning', title:'<h3>Login Failed!</h3>' });
         router.push('/signin');
       }
+    } catch {
+      await Swal.fire({ icon:'warning', title:'<h3>Login Failed!</h3>' });
+      router.push('/signin');
     } finally { setLoading(false); }
   };
 

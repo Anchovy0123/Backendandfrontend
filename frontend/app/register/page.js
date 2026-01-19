@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { Kanit } from 'next/font/google';
-import { API_BASE_URL } from '@/lib/api';
+import { apiRequest } from '@/lib/apiClient';
 
 const kanit = Kanit({
   subsets: ['thai','latin'],
@@ -11,33 +11,31 @@ const kanit = Kanit({
   variable: '--font-kanit',
 });
 
+const initialForm = {
+  firstname:'', fullname:'', lastname:'', username:'',
+  address:'', sex:'', birthday:'', password:''
+};
+
 export default function RegisterPage(){
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    firstname:'', fullname:'', lastname:'', username:'',
-    address:'', sex:'', birthday:'', password:''
-  });
-  const update = (k,v)=> setForm(s=>({ ...s, [k]: v }));
+  const [form, setForm] = useState(initialForm);
+  const updateField = (key, value) => setForm((state) => ({ ...state, [key]: value }));
+  const handleFieldChange = (key) => (event) => updateField(key, event.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/users`,{
+      await apiRequest('/api/users', {
         method:'POST',
-        headers:{ 'Content-Type':'application/json', Accept:'application/json' },
-        body: JSON.stringify(form),
+        body: form,
+        auth: false,
       });
-      const data = await res.json().catch(()=> ({}));
-      if(res.ok){
-        await Swal.fire({ icon:'success', title:'<h3>บันทึกข้อมูลเรียบร้อยแล้ว</h3>', timer:1600, showConfirmButton:false });
-        router.push('/login');
-      }else{
-        Swal.fire({ icon:'error', title:'เกิดข้อผิดพลาด!', text:data?.message || '' });
-      }
-    }catch{
-      Swal.fire({ icon:'error', title:'ข้อผิดพลาดเครือข่าย', text:'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
+      await Swal.fire({ icon:'success', title:'<h3>บันทึกข้อมูลเรียบร้อยแล้ว</h3>', timer:1600, showConfirmButton:false });
+      router.push('/login');
+    }catch(error){
+      Swal.fire({ icon:'error', title:'ข้อผิดพลาดเครือข่าย', text: error?.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
     }finally{ setLoading(false); }
   };
 
@@ -57,7 +55,7 @@ export default function RegisterPage(){
           <div className="auth-grid">
             <div className="form-field">
               <label>คำนำหน้า (Firstname)</label>
-              <select required value={form.firstname} onChange={e=>update('firstname', e.target.value)}>
+              <select required value={form.firstname} onChange={handleFieldChange('firstname')}>
                 <option value="">เลือกคำนำหน้า</option>
                 <option value="นาย">นาย</option>
                 <option value="นางสาว">นางสาว</option>
@@ -67,27 +65,27 @@ export default function RegisterPage(){
 
             <div className="form-field">
               <label>ชื่อ (Fullname)</label>
-              <input type="text" required value={form.fullname} onChange={e=>update('fullname', e.target.value)} />
+              <input type="text" required value={form.fullname} onChange={handleFieldChange('fullname')} />
             </div>
 
             <div className="form-field">
               <label>นามสกุล (Lastname)</label>
-              <input type="text" required value={form.lastname} onChange={e=>update('lastname', e.target.value)} />
+              <input type="text" required value={form.lastname} onChange={handleFieldChange('lastname')} />
             </div>
 
             <div className="form-field">
               <label>Username</label>
-              <input type="text" required value={form.username} onChange={e=>update('username', e.target.value)} />
+              <input type="text" required value={form.username} onChange={handleFieldChange('username')} />
             </div>
 
             <div className="form-field auth-span-2">
               <label>Address</label>
-              <textarea rows={2} required value={form.address} onChange={e=>update('address', e.target.value)} />
+              <textarea rows={2} required value={form.address} onChange={handleFieldChange('address')} />
             </div>
 
             <div className="form-field">
               <label>Sex</label>
-              <select required value={form.sex} onChange={e=>update('sex', e.target.value)}>
+              <select required value={form.sex} onChange={handleFieldChange('sex')}>
                 <option value="">เลือกเพศ</option>
                 <option value="ชาย">ชาย</option>
                 <option value="หญิง">หญิง</option>
@@ -97,12 +95,12 @@ export default function RegisterPage(){
 
             <div className="form-field">
               <label>Birthday</label>
-              <input type="date" required value={form.birthday} onChange={e=>update('birthday', e.target.value)} />
+              <input type="date" required value={form.birthday} onChange={handleFieldChange('birthday')} />
             </div>
 
             <div className="form-field auth-span-2">
               <label>Password</label>
-              <input type="password" required value={form.password} onChange={e=>update('password', e.target.value)} />
+              <input type="password" required value={form.password} onChange={handleFieldChange('password')} />
             </div>
           </div>
 
