@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { Kanit } from 'next/font/google';
+import { API_BASE_URL } from '@/lib/api';
 
 const kanit = Kanit({
   subsets: ['thai','latin'],
@@ -23,7 +24,7 @@ export default function RegisterPage(){
     e.preventDefault();
     try{
       setLoading(true);
-      const res = await fetch('https://backend-nextjs-virid.vercel.app/api/users',{
+      const res = await fetch(`${API_BASE_URL}/api/users`,{
         method:'POST',
         headers:{ 'Content-Type':'application/json', Accept:'application/json' },
         body: JSON.stringify(form),

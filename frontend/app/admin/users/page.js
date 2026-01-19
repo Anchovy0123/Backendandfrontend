@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
+import { API_BASE_URL } from '@/lib/api';
 
 export default function User() {
   const [items, setItems] = useState([]);
@@ -18,7 +19,7 @@ export default function User() {
 
     async function getUsers() {
       try {
-        const res = await fetch('https://backend-nextjs-virid.vercel.app/api/users');
+        const res = await fetch(`${API_BASE_URL}/api/users`);
         if (!res.ok) {
           console.error('Failed to fetch data');
           return;
@@ -40,7 +41,7 @@ export default function User() {
 const handleDelete = async (id) => {
   //console.log('user id :', id);
   try {
-    const res = await fetch(`https://backend-nextjs-virid.vercel.app/api/users/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${id}`, {
       method: 'DELETE',
       headers: {
         Accept : 'application/json',

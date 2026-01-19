@@ -2,9 +2,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { useParams, useRouter } from 'next/navigation'
+import { API_BASE_URL } from '@/lib/api'
 
 // ✅ ใช้ endpoint ตามที่ขอแบบชัดเจน
-const USERS_API = 'https://backend-nextjs-virid.vercel.app/api/users'
+const USERS_API = `${API_BASE_URL}/api/users`
 
 // แปลง "14/02/2545" -> "2002-02-14"
 function toInputDate(v) {
