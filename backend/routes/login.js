@@ -5,6 +5,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/auth");
 
+const sendError = (res, status, message) =>
+  res.status(status).json({ error: message, message });
+
 /**
  * @openapi
  * tags:
@@ -33,7 +36,7 @@ const verifyToken = require("../middleware/auth");
 
 /**
  * @openapi
- * /login:
+ * /api/auth/login:
  *   post:
  *     tags: [Auth]
  *     summary: Login (tbl_users) and get JWT
@@ -69,13 +72,13 @@ const verifyToken = require("../middleware/auth");
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/", async (req, res) => {
+async function handleLogin(req, res) {
   try {
     const username = String(req.body?.username ?? "").trim();
     const password = String(req.body?.password ?? "");
 
     if (!username || !password) {
-      return res.status(400).json({ error: "username/password is required" });
+      return sendError(res, 400, "username/password is required");
     }
 
     const [rows] = await db.query(
@@ -85,7 +88,7 @@ router.post("/", async (req, res) => {
       [username]
     );
 
-    if (rows.length === 0) return res.status(401).json({ error: "User not found" });
+    if (rows.length === 0) return sendError(res, 401, "User not found");
 
     const user = rows[0];
     const dbPass = String(user.password ?? "");
@@ -106,10 +109,10 @@ router.post("/", async (req, res) => {
       }
     }
 
-    if (!passOK) return res.status(401).json({ error: "Invalid password" });
+    if (!passOK) return sendError(res, 401, "Invalid password");
 
     const SECRET_KEY = process.env.SECRET_KEY || process.env.JWT_SECRET;
-    if (!SECRET_KEY) return res.status(500).json({ error: "Server missing SECRET_KEY" });
+    if (!SECRET_KEY) return sendError(res, 500, "Server missing SECRET_KEY");
 
     const token = jwt.sign(
       {
@@ -126,14 +129,17 @@ router.post("/", async (req, res) => {
     const { password: _omit, ...safeUser } = user;
     res.json({ message: "Login successful", token, user: safeUser });
   } catch (err) {
-    console.error("POST /api/login error:", err);
-    res.status(500).json({ error: "Login failed" });
+    console.error("POST /api/auth/login error:", err);
+    sendError(res, 500, "Login failed");
   }
-});
+}
+
+router.post("/", handleLogin);
+router.post("/login", handleLogin);
 
 /**
  * @openapi
- * /logout:
+ * /api/auth/logout:
  *   post:
  *     tags: [Auth]
  *     summary: Logout (JWT stateless) - just a test endpoint
