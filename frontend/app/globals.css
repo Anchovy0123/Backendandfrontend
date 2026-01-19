@@ -1,0 +1,376 @@
+/* ================================
+   Endfield Light UI (site-wide)
+   ใช้เมื่อ <body> มีคลาส .ak-yellow
+================================ */
+.ak-yellow{
+  --yl:#ffe500; --yl2:#ffd100;
+  --ink:#101214; --ink2:#444a50;
+  --stroke:#e3e6ea; --bg:#f6f7f8; --bg2:#f1f3f5;
+  --grid:rgba(0,0,0,.06);
+  color:var(--ink);
+}
+.ak-yellow::before{
+  content:""; position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(1000px 500px at 20% 0%, rgba(255,229,0,.10), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.0), rgba(255,255,255,.25)),
+    repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 40px),
+    linear-gradient(145deg, var(--bg), var(--bg2));
+}
+.ak-yellow::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background: radial-gradient(220px 160px at calc(var(--mx,.5)*100%) calc(var(--my,.3)*100%), rgba(255,255,255,.18), rgba(255,255,255,0));
+  mix-blend-mode: overlay;
+}
+
+/* ท็อปโกลว์เหลือง (ถ้า nav ใส่ .ak-topglow) */
+.ak-topglow::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:-2px; height:2px;
+  background:linear-gradient(90deg, transparent, var(--yl), transparent);
+  filter:drop-shadow(0 0 10px var(--yl));
+  pointer-events:none;
+}
+
+/* ================================
+   Endfield Header — Bigger & Aligned
+================================ */
+.ef-nav{
+  --navH: 104px;                 /* ความสูงแถบ (92–112 ได้) */
+  --gap : 40px;                  /* ระยะห่างเมนู */
+  position: sticky; top: 0;
+  z-index: 2000;                 /* กันวิดีโอ/เลเยอร์ทับคลิก */
+  background:#fff;
+  padding:0;
+  border-top:3px solid #0f0f0f;
+  box-shadow:0 12px 26px rgba(0,0,0,.08);
+}
+
+/* พื้นลาย topo จาง ๆ */
+.ef-nav::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  opacity:.18;
+  background:
+    radial-gradient(700px 300px at 15% 40%, rgba(0,0,0,.04), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.015) 0 2px, transparent 2px 6px);
+  background-repeat:no-repeat, repeat;
+  background-position:center, top;
+}
+
+/* เส้นเหลืองบาง ๆ ล่างบาร์ */
+.ef-nav::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+  background: linear-gradient(90deg, transparent 0 120px, var(--yl,#ffe500) 120px 160px, transparent 160px 100%);
+  filter: drop-shadow(0 0 6px rgba(255,213,0,.5));
+  pointer-events:none;
+}
+
+/* โลโก้ */
+.ef-brand{
+  font-weight:900; letter-spacing:.06em;
+  color:#111; text-transform:uppercase;
+  font-size:30px; line-height:1; text-decoration:none;
+}
+.ef-brand span{
+  background:linear-gradient(180deg,#111,#444);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+
+.ef-link{
+  position:relative;
+  display:inline-flex; align-items:center;
+  padding: 30px 12px;                 /* ทำให้บาร์ดูสูงขึ้น */
+  color:#2f343a; font-weight:800;
+  letter-spacing:.08em; text-transform:uppercase;
+  font-size:16px; text-decoration:none;
+}
+.ef-link:hover{ color:#000; }
+
+/* แท่งเหลืองซ้ายของเมนู active */
+.ef-link.active{ color:#111; }
+.ef-link.active::before{
+  content:""; position:absolute; left:-14px; top:50%; transform:translateY(-50%);
+  width:4px; height:22px; border-radius:2px;
+  background:linear-gradient(180deg,var(--yl,#ffe500),var(--yl2,#ffd100));
+  box-shadow:0 0 10px rgba(255,213,0,.35);
+}
+
+/* ปุ่มขวา (เช่น Sign out) */
+.btn.btn-outline-ink{
+  background:#fff; color:var(--ink);
+  border:1px solid var(--stroke);
+}
+.btn.btn-outline-ink:hover{ filter:brightness(1.02); }
+
+/* Toggler โทนสว่าง */
+.ef-toggler, .navbar-toggler{ border:1px solid var(--stroke); }
+.navbar-toggler-icon{ filter: invert(1) grayscale(1); }
+
+/* มือถือ: ลดขนาดลงเล็กน้อย */
+@media (max-width: 991.98px){
+  .ef-nav{ --navH: 76px; }
+  .ef-link{ padding: 18px 8px; font-size:15px; }
+  .ef-menu{ justify-content:flex-start; gap:18px; }
+}
+
+/* ใช้ flex: โลโก้ซ้าย / เมนูขวา */
+.ef-inner{
+  width: min(1200px, 92%);
+  margin-inline:auto;
+  height: var(--navH);
+  display:flex;               /* ⬅️ เปลี่ยนเป็น flex */
+  align-items:center;
+  position:relative; z-index:1;
+}
+
+/* ดันโลโก้ไปซ้าย */
+.ef-inner > .navbar-brand{
+  margin-right:auto;          /* ⬅️ โลโก้ซ้าย */
+  padding-left:22px;
+}
+
+/* กลุ่มเมนูไปทางขวา */
+.ef-collapse{
+  margin-left:auto;           /* ⬅️ ทั้งกลุ่มไปขวา */
+  display:flex !important;
+  align-items:center;
+  gap:16px;
+}
+
+/* เมนูเรียงขวา ไม่ใช่กลาง */
+.ef-menu{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;   /* ⬅️ จาก center เป็น flex-end */
+  gap: var(--gap);
+  margin:0; padding:0; list-style:none;
+}
+
+/* === ENDFIELD NAV Animations === */
+
+/* เข้าฉากเนียน ๆ ตอนโหลด */
+.ef-nav.ef-ready { animation: efNavIn .5s ease both; }
+@keyframes efNavIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ย่อความสูงเล็กน้อยตอนสกรอลล์ */
+.ef-nav { --navH: 100px; transition: box-shadow .25s ease, background-color .25s ease, transform .25s ease; }
+.ef-inner { height: var(--navH); transition: height .25s ease; }
+.ef-nav.ef-shrink { box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+.ef-nav.ef-shrink .ef-inner { height: 84px; }
+
+/* เมนูค่อย ๆ โผล่มาทีละอัน (stagger) */
+.ef-menu .nav-item {
+  opacity: 0; transform: translateY(8px);
+  animation: efItemIn .45s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 120ms);
+}
+@keyframes efItemIn {
+  to { opacity: 1; transform: none; }
+}
+
+/* เส้นไฮไลต์ด้านล่างวิ่งตอน hover/active */
+.ef-link {
+  position: relative;
+  transition: color .2s ease, transform .2s ease;
+}
+.ef-link::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: 10px; height: 2px;
+  background: linear-gradient(90deg, #ffe500, #ffd100);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform .25s ease;
+  border-radius: 2px; opacity: .9;
+}
+.ef-link:hover { transform: translateY(-1px); }
+.ef-link:hover::after { transform: scaleX(1); }
+
+/* active: แสดงเส้นเต็ม + แท่งเหลืองซ้ายโตขึ้นเล็กน้อย */
+.ef-link.active::after { transform: scaleX(1); }
+.ef-link.active::before {
+  transition: transform .25s ease, box-shadow .25s ease;
+  transform: translateY(-50%) scaleY(1.05);
+  box-shadow: 0 0 12px rgba(255,213,0,.45);
+}
+
+/* toggler หมุนเบา ๆ ตอนกด */
+.navbar-toggler { transition: transform .25s ease; }
+.navbar-toggler[aria-expanded="true"] { transform: rotate(90deg); }
+/* ===== Auth pages: reset navbar to the old/simple style ===== */
+.auth-nav-reset .ef-nav{
+  --navH: 72px;
+  background:#fff;
+  border-top: none;
+  border-bottom: 1px solid var(--stroke, #e3e6ea);
+  box-shadow: none;
+}
+.auth-nav-reset .ef-nav::before,
+.auth-nav-reset .ef-nav::after,
+.auth-nav-reset .ef-inner::before{
+  display:none !important; content:none !important;
+}
+
+/* layout เดิม: โลโก้ซ้าย / เมนูขวา */
+.auth-nav-reset .ef-inner{
+  height: var(--navH);
+  display:flex; align-items:center;
+}
+.auth-nav-reset .ef-inner > .navbar-brand{ margin-right:auto; padding-left:0; }
+.auth-nav-reset .ef-collapse{ margin-left:auto; }
+
+/* ลิงก์เมนูแบบเดิม (เล็กลง, ไม่ตัวพิมพ์ใหญ่, ไม่มีแท่งเหลือง) */
+.auth-nav-reset .ef-link{
+  padding: 16px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.auth-nav-reset .ef-link.active::before{ display:none !important; }
+/* ================================
+   AUTH PAGES — Login / SignIn / Register
+   (append-only; ไม่กระทบ .ef-nav และเมนู)
+=================================*/
+.auth-screen{
+  min-height:100svh;
+  padding:120px 0 64px;                /* ระยะเผื่อ navbar */
+  position:relative;
+  color:var(--ink, #101214);
+  overflow-x:hidden;
+  font-family: var(--font-kanit, system-ui, -apple-system);
+}
+.auth-bg{
+  position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(900px 420px at 18% 0%, rgba(255,229,0,.12), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.00), rgba(255,255,255,.20)),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.06) 0 1px, transparent 1px 40px),
+    linear-gradient(145deg, var(--bg,#f6f7f8), var(--bg2,#f1f3f5));
+}
+/* เส้นสแกนลายกริดแบบ Endfield */
+.scanline{
+  position:fixed; left:5%; right:5%; top:120px; height:2px; opacity:.35; pointer-events:none; z-index:-1;
+  background:repeating-linear-gradient(90deg,#cfd3d8 0 10px, transparent 10px 20px);
+  animation:auth-scan 6s linear infinite;
+}
+@keyframes auth-scan{ from{background-position:0 0} to{background-position:-400px 0} }
+
+/* ขนาดคอนเทนเนอร์ (จำกัดเฉพาะใน auth เท่านั้น) */
+.auth-screen .container{ width:min(880px,92%); margin:0 auto; }
+
+/* ส่วนหัว */
+.auth-head{ text-align:center; margin:10px 0 18px; }
+.auth-brand{ font-size:12px; letter-spacing:.26em; color:var(--ink2,#444a50); text-transform:uppercase; }
+.auth-brand span{
+  background:linear-gradient(180deg,#111,#444);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.auth-title{ margin:8px 0 6px; font-size:clamp(26px,5.2vw,46px); font-weight:800; letter-spacing:.04em; text-shadow:0 0 8px rgba(255,214,0,.16); }
+.auth-sub{ color:var(--ink2,#444a50); }
+
+/* กล่องฟอร์ม */
+.auth-card{
+  background:#fff; border:1px solid var(--stroke,#e3e6ea); border-radius:16px;
+  box-shadow:0 12px 26px rgba(0,0,0,.08);
+  padding:18px; position:relative;
+}
+.auth-card::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+  background:linear-gradient(90deg, transparent 0 120px, var(--yl,#ffe500) 120px 160px, transparent 160px 100%);
+  filter:drop-shadow(0 0 6px rgba(255,213,0,.5));
+  border-bottom-left-radius:16px; border-bottom-right-radius:16px;
+}
+
+/* เลย์เอาต์ฟอร์ม */
+.auth-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.auth-span-2{ grid-column:span 2; }
+
+.form-field{ display:flex; flex-direction:column; gap:6px; }
+.form-field > label{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#2b2f33; }
+
+/* ช่องกรอก */
+.auth-card input,
+.auth-card select,
+.auth-card textarea{
+  background:#fff; color:#111; border:1px solid var(--stroke,#e3e6ea);
+  border-radius:12px; padding:12px 14px; outline:none;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .05s ease;
+}
+.auth-card textarea{ resize:vertical; }
+.auth-card input::placeholder{ color:#8b9197; }
+.auth-card input:focus,
+.auth-card select:focus,
+.auth-card textarea:focus{
+  border-color:var(--yl2,#ffd100);
+  box-shadow:0 0 0 4px rgba(255,213,0,.20);
+}
+
+/* toggle password */
+.pw-wrap{ position:relative; }
+.pw-wrap input{ width:100%; padding-right:64px; }
+.pw-toggle{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  border:1px solid var(--stroke,#e3e6ea); background:#fff; color:#111;
+  border-radius:999px; padding:6px 10px; font-size:12px; letter-spacing:.06em;
+}
+
+/* ปุ่ม/แอ็กชัน */
+.auth-actions{
+  display:flex; gap:12px; justify-content:flex-end;
+  margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,.06);
+}
+.btn-yl{
+  background:linear-gradient(180deg, var(--yl,#ffe500), var(--yl2,#ffd100));
+  color:#111; border:1px solid #e6cf00; border-radius:999px;
+  font-weight:800; letter-spacing:.06em; padding:12px 22px;
+  box-shadow:0 6px 16px rgba(0,0,0,.10);
+}
+.btn-yl:disabled{ opacity:.6; cursor:not-allowed; }
+.btn-yl:hover{ filter:brightness(1.04); }
+
+/* ปุ่ม Create Account แบบ ghost + เส้นแสงวิ่ง */
+.btn-ghost{
+  position:relative; display:inline-flex; align-items:center; gap:8px;
+  padding:12px 18px; border-radius:999px; text-decoration:none;
+  font-weight:800; letter-spacing:.06em; color:var(--ink,#101214);
+  border:1px solid var(--stroke,#e3e6ea); background:#fff; overflow:hidden;
+}
+.btn-ghost .trail{
+  position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,229,0,.25), transparent);
+  transform:translateX(-100%);
+}
+.btn-ghost:hover .trail{ animation:auth-trail 1.2s cubic-bezier(.2,.8,.2,1); }
+@keyframes auth-trail{ from{transform:translateX(-100%)} 60%{transform:translateX(10%)} to{transform:translateX(100%)} }
+
+/* Entrance animation สำหรับการ์ด */
+.fade-in-up{ animation:auth-in .5s ease both; }
+@keyframes auth-in{ from{opacity:0; transform:translateY(14px) scale(.98)} to{opacity:1; transform:none} }
+
+/* เคารพการตั้งค่าลดแอนิเมชันของระบบ */
+@media (prefers-reduced-motion: reduce){
+  .scanline, .fade-in-up, .btn-ghost .trail{ animation:none !important; }
+}
+
+/* Responsive */
+@media (max-width: 720px){
+  .auth-grid{ grid-template-columns:1fr; }
+  .auth-span-2{ grid-column:auto; }
+  .auth-actions{ flex-direction:column; }
+  .btn-yl, .btn-ghost{ width:100%; justify-content:center; }
+}
+/* Hydration-safe stagger index for nav items (no inline style needed) */
+.ef-menu .nav-item { --i: 0; }
+.ef-menu .nav-item:nth-child(2) { --i: 1; }
+.ef-menu .nav-item:nth-child(3) { --i: 2; }
+.ef-menu .nav-item:nth-child(4) { --i: 3; }
+.ef-menu .nav-item:nth-child(5) { --i: 4; }
+/* กันอนาคตถ้ามีเมนูเพิ่ม */
+.ef-menu .nav-item:nth-child(6) { --i: 5; }
+.ef-menu .nav-item:nth-child(7) { --i: 6; }
+.ef-menu .nav-item:nth-child(8) { --i: 7; }
+
+
